@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refer Boss</title>
+    <style>
+        :root {
+            --bg-color-light: #f4f6f9;
+            --text-color-light: #121212;
+            --card-bg-light: #ffffff;
+            --button-glow-light: 0 0 15px rgba(255, 152, 0, 0.6);
+            
+            --bg-color-dark: #121212;
+            --text-color-dark: #e0e0e0;
+            --card-bg-dark: #1e1e1e;
+            --button-glow-dark: 0 0 15px rgba(255, 167, 38, 0.7);
+
+            --primary-accent: #FF9900; /* Refer  Orange */
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+            /* Default to light theme */
+            --bg-color: var(--bg-color-light);
+            --text-color: var(--text-color-light);
+            --card-bg: var(--card-bg-light);
+            --button-glow: var(--button-glow-light);
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body.dark-mode {
+            --bg-color: var(--bg-color-dark);
+            --text-color: var(--text-color-dark);
+            --card-bg: var(--card-bg-dark);
+            --button-glow: var(--button-glow-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Header & Theme Switcher --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        #theme-switcher {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-color);
+        }
+
+        /* --- Slider Section --- */
+        .slider-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 10px auto;
+            aspect-ratio: 16 / 6; /* Responsive aspect ratio */
+            overflow: hidden;
+            position: relative;
+            background-color: #000;
+            border-radius: 8px;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* IMPORTANT: Fits image without cropping */
+            display: block;
+        }
+
+        /* --- Product Grid Section --- */
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap; /* Allows wrapping to create rows */
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 2%; /* Spacing between rows */
+            box-sizing: border-box;
+
+            /* IMPORTANT: Fixed 3-column layout */
+            width: 32%;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image-container {
+            width: 100%;
+            height: 200px; /* Fixed height for image container */
+            margin-bottom: 15px;
+        }
+
+        .product-card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .product-card h3 {
+            font-size: 1.1em;
+            margin: 0 0 15px 0;
+            flex-grow: 1;
+        }
+
+        .product-btn {
+            display: inline-block;
+            background-color: var(--primary-accent);
+            color: #111;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1em;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+
+        .product-btn:hover, .product-btn:focus {
+            background-color: #ffac33;
+            box-shadow: var(--button-glow);
+            transform: scale(1.05);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="container">
+        <div class="logo">Refer Boss</div>
+        <button id="theme-switcher">🌙</button>
+    </header>
+
+    <main class="container">
+        <!-- Top Slider Section -->
+        <section class="slider-container" id="slider-container">
+            <div class="slider-wrapper" id="slider-wrapper">
+                <!-- Slides will be injected here by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Product Display Section -->
+        <section class="product-grid" id="product-grid">
+            <!-- Products will be injected here by JavaScript -->
+        </section>
+    </main>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // PASTE YOUR FIREBASE CONFIG OBJECT HERE
+        const firebaseConfig = {
+  apiKey: "AIzaSyBFiwrEIp5WymiwTg7WMr6glbGx86uIQ5g",
+  authDomain: "fir-5467c.firebaseapp.com",
+  databaseURL: "https://fir-5467c-default-rtdb.firebaseio.com",
+  projectId: "fir-5467c",
+  storageBucket: "fir-5467c.firebasestorage.app",
+  messagingSenderId: "518663989335",
+  appId: "1:518663989335:web:ccfb90566c4b02129b1b12"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // --- THEME SWITCHER ---
+        const themeSwitcher = document.getElementById('theme-switcher');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeSwitcher.textContent = '☀️';
+        }
+
+        themeSwitcher.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            let theme = 'light';
+            if (document.body.classList.contains('dark-mode')) {
+                theme = 'dark';
+                themeSwitcher.textContent = '☀️';
+            } else {
+                 themeSwitcher.textContent = '🌙';
+            }
+            localStorage.setItem('theme', theme);
+        });
+
+
+        // --- SLIDER FUNCTIONALITY ---
+        const sliderWrapper = document.getElementById('slider-wrapper');
+        const slidersRef = database.ref('slider');
+        let slideInterval;
+        let currentSlide = 0;
+
+        function startSlider(slides) {
+            if (slideInterval) clearInterval(slideInterval);
+            if (slides.length <= 1) return;
+
+            slideInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }, 4000); // Change slide every 4 seconds
+        }
+
+        slidersRef.on('value', snapshot => {
+            sliderWrapper.innerHTML = '';
+            const slides = [];
+            if(snapshot.exists()){
+                snapshot.forEach(childSnapshot => {
+                    const slideData = childSnapshot.val();
+                    slides.push(slideData);
+
+                    const slideElement = `
+                        <a href="${slideData.url}" target="_blank" class="slide">
+                            <img src="${slideData.image}" alt="Offer Slide">
+                        </a>
+                    `;
+                    sliderWrapper.innerHTML += slideElement;
+                });
+                startSlider(slides);
+            } else {
+                 document.getElementById('slider-container').style.display = 'none';
+            }
+        });
+
+        // --- PRODUCT DISPLAY ---
+        const productGrid = document.getElementById('product-grid');
+        const productsRef = database.ref('products');
+
+        productsRef.on('value', snapshot => {
+            productGrid.innerHTML = '';
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const product = childSnapshot.val();
+                    const productCard = `
+                        <div class="product-card">
+                            <div class="product-image-container">
+                                <img src="${product.image}" alt="${product.name}">
+                            </div>
+                            <h3>${product.name}</h3>
+                            <a href="${product.buttonUrl}" target="_blank" class="product-btn">${product.buttonText}</a>
+                        </div>
+                    `;
+                    productGrid.innerHTML += productCard;
+                });
+            } else {
+                productGrid.innerHTML = '<p>No products available at the moment.</p>';
+            }
+        });
+
+    </script>
+</body>
+</html>```
+
+
+
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'c9c3757d0ec91858e8c5d1c281d53912',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c9c3757d0ec91858e8c5d1c281d53912/invoke.js"></script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'c9c3757d0ec91858e8c5d1c281d53912',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c9c3757d0ec91858e8c5d1c281d53912/invoke.js"></script>
+<script type='text/javascript' src='//pl27337132.profitableratecpm.com/4b/7b/ab/4b7bab84d444337e3130d3faba88110d.js'></script>
